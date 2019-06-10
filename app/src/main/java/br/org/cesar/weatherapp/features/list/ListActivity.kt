@@ -1,8 +1,10 @@
 package br.org.cesar.weatherapp.features.list
 
+import android.app.ListActivity
 import android.arch.persistence.room.Room
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
@@ -10,6 +12,7 @@ import android.view.MenuItem
 import br.org.cesar.weatherapp.features.setting.SettingActivity
 import android.net.ConnectivityManager
 import android.os.AsyncTask
+import android.support.v4.content.ContextCompat.getSystemService
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
@@ -25,39 +28,61 @@ import br.org.cesar.weatherapp.entity.FavoriteCity
 import br.org.cesar.weatherapp.entity.FindResult
 import br.org.cesar.weatherapp.utils.Util
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.*
 
 class ListActivity : AppCompatActivity() {
 
     val adapter = WeatherAdapter{ saveFavorite(it) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val lang = "pt-rBR"
+        val locale = Locale(lang)
+        val connfig = Configuration()
+        connfig.setLocale(locale)
+
+        baseContext.resources.updateConfiguration(connfig,  baseContext.resources.displayMetrics)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initUI()
+
     }
 
     /**
-     * Salva uma cidade favorita no bando de dados de forma SÍNCRONA
+     * Salva uma cidade favorita no banco de dados de forma SÍNCRONA
      */
     private fun saveFavorite(city: City) {
-        RoomManager.instance(this).favoriteDao().apply {
-            val (id,name) = city
-            insert(FavoriteCity(id, name))
-
-            selectAll().forEach {
-                Log.d("w", it.name)
-            }
-        }
+        saveFavoriteAsync(this, city)
     }
 
     /**
      * Salva uma cidade favorita no banco de dados de forma ASSÍNCRONA
      */
-    private fun saveFavoriteAsync(city: City) {
-        FavoriteAsync(this).execute(city)
+    private fun saveFavoriteAsync(context: Context, city: City) {
+        doAsync {
+
+            var favoriteCities: List<FavoriteCity>? = null
+
+            RoomManager.instance(context).favoriteDao().apply {
+                city.let {
+                    val (id, name) = it
+                    if (selectById(it.id) == null) {
+                        insert(FavoriteCity(id, name))
+                    }else{
+                        delete(FavoriteCity(id, name))
+                    }
+                }
+                favoriteCities = selectAll()
+            }
+
+            uiThread {
+                favoriteCities?.let { it1 -> refreshList(it1) }
+            }
+        }
     }
 
     /**
@@ -94,7 +119,14 @@ class ListActivity : AppCompatActivity() {
     /**
      * Método paque faz a requisição a Weather API e atualiza o recycler view
      */
-    private fun refreshList() {
+    private fun refreshList(list: List<FavoriteCity>?) {
+
+        var favoriteCities = list
+        if (favoriteCities == null) {
+            RoomManager.instance(this).favoriteDao().apply {
+                favoriteCities = selectAll()
+            }
+        }
 
         progressBar.visibility = View.VISIBLE
 
@@ -115,6 +147,15 @@ class ListActivity : AppCompatActivity() {
             override fun onResponse(call: Call<FindResult>, response: Response<FindResult>) {
                 if (response.isSuccessful) {
                     response.body()?.let { findResult ->
+
+                        findResult.list.forEach{
+                            favoriteCities?.forEach { favoriteCity ->
+                                if (it.id == favoriteCity.id) {
+                                    it.favorite = true
+                                }
+                            }
+                        }
+
                         adapter.updataData(findResult.list)
                     }
                 }
@@ -130,7 +171,7 @@ class ListActivity : AppCompatActivity() {
     private fun initUI() {
         btnSearch.setOnClickListener {
             if (isDeviceConnected()) {
-                refreshList()
+                refreshList(null)
             } else {
                 Toast.makeText(this, "Desconectado", Toast.LENGTH_SHORT).show()
             }

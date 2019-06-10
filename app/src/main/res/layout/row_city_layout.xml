@@ -13,7 +13,8 @@
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/w_01d" />
+        app:srcCompat="@drawable/w_01d"
+        android:contentDescription="@string/todo" />
 
     <TextView
         android:id="@+id/tvTemp"
@@ -43,7 +44,7 @@
         android:layout_marginEnd="8dp"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imgFavoriteStar"
         app:layout_constraintStart_toEndOf="@+id/tvTempType"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Buenos Aires, AR" />
@@ -52,10 +53,9 @@
         android:id="@+id/tvDescription"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
         android:textSize="12sp"
         android:textStyle="italic"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/tvCityCountry"
         app:layout_constraintStart_toStartOf="@+id/tvCityCountry"
         app:layout_constraintTop_toBottomOf="@+id/tvCityCountry"
         tools:text="few clouds" />
@@ -64,13 +64,28 @@
         android:id="@+id/tvDetails"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
         android:layout_marginBottom="16dp"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/tvCityCountry"
         app:layout_constraintStart_toStartOf="@+id/tvDescription"
         app:layout_constraintTop_toBottomOf="@+id/tvDescription"
         tools:text="wind1,5 m/s | clouds 75% | 1009 hpa" />
+
+    <ImageView
+        android:id="@+id/imgFavoriteStar"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:contentDescription="@string/favorite"
+        android:scaleType="centerInside"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tvCityCountry"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/star_gold" />
 
 </android.support.constraint.ConstraintLayout>

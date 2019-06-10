@@ -1,11 +1,10 @@
 package br.org.cesar.weatherapp.features.list
 
-import android.content.Context
+import android.graphics.BitmapFactory
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import br.org.cesar.weatherapp.Constants
 import br.org.cesar.weatherapp.R
 import br.org.cesar.weatherapp.entity.City
 import br.org.cesar.weatherapp.utils.Util
@@ -19,7 +18,7 @@ import kotlin.math.roundToInt
  * @sample https://medium.com/android-dev-br/listas-com-recyclerview-d3f41e0d653c
  *
  */
-class WeatherAdapter(private val callback: (City) -> Unit) : RecyclerView.Adapter<WeatherAdapter.MyViewHolder>() {
+class WeatherAdapter(private val saveFavoriteCallback: (City) -> Unit) : RecyclerView.Adapter<WeatherAdapter.MyViewHolder>() {
 
     private var list: List<City>? = null
 
@@ -52,7 +51,7 @@ class WeatherAdapter(private val callback: (City) -> Unit) : RecyclerView.Adapte
      */
     override fun onBindViewHolder(vh: MyViewHolder, position: Int) {
         list?.let {
-            vh.bind(it[position], callback)
+            vh.bind(it[position], saveFavoriteCallback)
         }
     }
 
@@ -73,6 +72,7 @@ class WeatherAdapter(private val callback: (City) -> Unit) : RecyclerView.Adapte
             val weather = city.weathers[0]
             itemView.tvDescription.text = weather.description
 
+            changeStar(city.favorite)
 
             val details = "wind ${city.wind?.speed}m/s | clouds ${city.clouds?.all}% | sea ${city.main?.seaLevel} m"
             itemView.tvDetails.text = details
@@ -86,13 +86,34 @@ class WeatherAdapter(private val callback: (City) -> Unit) : RecyclerView.Adapte
                 .placeholder(R.drawable.w_01d)
                 .into(itemView.imgIcon)
 
-            itemView.setOnClickListener {
+            itemView.imgFavoriteStar.setOnClickListener {
                 callback(city)
+                changeStar(!city.favorite)
             }
 
             itemView.tvTempType.text = if (Util.getUnit(itemView.context) == "metric")  "C" else "F"
         }
+
+        private fun changeStar(favorite: Boolean) {
+            if (favorite) {
+                itemView.imgFavoriteStar.setImageBitmap(
+                    BitmapFactory.decodeResource(
+                        itemView.context.resources,
+                        R.drawable.star_gold
+                    )
+                )
+            } else {
+                itemView.imgFavoriteStar.setImageBitmap(
+                    BitmapFactory.decodeResource(
+                        itemView.context.resources,
+                        R.drawable.star_empty
+                    )
+                )
+
+            }
+        }
     }
+
 
     /**
      * Método responsável por atualizar os itens do recyclerview

@@ -15,7 +15,8 @@ data class City(
     var wind: Wind,
     var sys: Sys,
     var rain: Rain,
-    var clouds: Clouds)
+    var clouds: Clouds,
+    var favorite: Boolean = false)
 
 data class Weather(var main: String,
                    var icon: String,
