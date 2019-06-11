@@ -15,4 +15,9 @@ object Util{
         val isTempC = (getPrefs(context).getBoolean(Constants.PREF_TEMP_C, true))
         return if (isTempC) "metric" else "imperial"
     }
+
+    fun getLang(context: Context): String {
+        val isEn = (getPrefs(context).getBoolean(Constants.PREF_LANG_EN, true))
+        return if (isEn) "en" else "pt"
+    }
 }

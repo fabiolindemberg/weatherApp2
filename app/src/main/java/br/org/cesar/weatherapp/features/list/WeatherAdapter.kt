@@ -12,19 +12,10 @@ import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.row_city_layout.view.*
 import kotlin.math.roundToInt
 
-/**
- *
- * Classe que cria um Adapter para o nosso RecyclerView
- * @sample https://medium.com/android-dev-br/listas-com-recyclerview-d3f41e0d653c
- *
- */
 class WeatherAdapter(private val saveFavoriteCallback: (City) -> Unit) : RecyclerView.Adapter<WeatherAdapter.MyViewHolder>() {
 
     private var list: List<City>? = null
 
-    /**
-     * Método responsável por inflar a view e retornar um ViewHolder
-     */
     override fun onCreateViewHolder(
         viewGroup: ViewGroup,
         position: Int): MyViewHolder {
@@ -35,37 +26,16 @@ class WeatherAdapter(private val saveFavoriteCallback: (City) -> Unit) : Recycle
         return MyViewHolder(view)
     }
 
-    /**
-     * Método que retorna a quantidade de itens da lista
-     *
-     * Aqui utilizamos o operador Elvis Operator ?:
-     * https://www.concrete.com.br/2017/06/21/kotlin-no-tratamento-de-erros/
-     */
     override fun getItemCount() = list?.size ?: 0
 
-    /**
-     * Método responsável por realizar o bind da View com o item
-     *
-     * @param vh Nosso viewholder criado para reciclar as views
-     * @param position posição do item que será inflado no recyclerview
-     */
     override fun onBindViewHolder(vh: MyViewHolder, position: Int) {
         list?.let {
             vh.bind(it[position], saveFavoriteCallback)
         }
     }
 
-    /**
-     * Classe responsável por fazer o bind da View com o objeto City
-     */
     class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-        /**
-         * Método que faz o bind
-         *
-         * @param city objeto a ser exibido
-         * @param callback expressão lambda que será invokada quando a view for clicada/tocada
-         */
         fun bind(city: City, callback: (City) -> Unit) {
             itemView.tvCityCountry.text = "${city.name}, ${city.id}"
             itemView.tvTemp.text = city.main.temp.roundToInt().toString()
@@ -74,14 +44,14 @@ class WeatherAdapter(private val saveFavoriteCallback: (City) -> Unit) : Recycle
 
             changeStar(city.favorite)
 
-            val details = "wind ${city.wind?.speed}m/s | clouds ${city.clouds?.all}% | sea ${city.main?.seaLevel} m"
-            itemView.tvDetails.text = details
+            if (Util.getLang(itemView.context) == "en") {
+                itemView.tvDetails.text = "wind ${city.wind?.speed}m/s | clouds ${city.clouds?.all}% | sea ${city.main?.seaLevel} m"
+            }else{
+                itemView.tvDetails.text = "vento ${city.wind?.speed}m/s | nuvens ${city.clouds?.all}% | maré ${city.main?.seaLevel} m"
 
-            /**
-             * Glide é uma lib opensource para facilitar o carregamento de imagens de forma eficiente
-             * @sample https://github.com/bumptech/glide
-              */
-            Glide.with(itemView.context)
+            }
+
+             Glide.with(itemView.context)
                 .load("http://openweathermap.org/img/w/${weather.icon}.png")
                 .placeholder(R.drawable.w_01d)
                 .into(itemView.imgIcon)
@@ -114,10 +84,6 @@ class WeatherAdapter(private val saveFavoriteCallback: (City) -> Unit) : Recycle
         }
     }
 
-
-    /**
-     * Método responsável por atualizar os itens do recyclerview
-     */
     fun updataData(list: List<City>) {
         this.list = list
         notifyDataSetChanged()

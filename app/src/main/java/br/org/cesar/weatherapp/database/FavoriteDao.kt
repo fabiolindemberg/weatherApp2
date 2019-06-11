@@ -3,9 +3,6 @@ package br.org.cesar.weatherapp.database
 import android.arch.persistence.room.*
 import br.org.cesar.weatherapp.entity.FavoriteCity
 
-/**
- * Interface que descreve os métodos de acesso aos dados do Room
- */
 @Dao
 interface FavoriteDao {
 

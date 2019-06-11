@@ -5,9 +5,6 @@ import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-/**
- * Interface que descreve os serviços, verbos HTTP (GET, POST, PUT, DELETE) e parâmetros (Query, Path) dos end points
- */
 interface WeatherServices {
 
     @GET("find")
@@ -19,6 +16,11 @@ interface WeatherServices {
         appKey: String,
 
         @Query("units")
-        units: String): Call<FindResult>
+        units: String,
+
+        @Query("lang")
+        lang: String): Call<FindResult>
+
+
 
 }

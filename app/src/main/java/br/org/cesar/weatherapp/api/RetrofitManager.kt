@@ -3,9 +3,6 @@ package br.org.cesar.weatherapp.api
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-/**
- * Classe responsável por gerenciar a instância do Retrofit
- */
 class RetrofitManager {
 
     // Cria uma instância do Retrofit
