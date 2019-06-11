@@ -37,7 +37,7 @@ class WeatherAdapter(private val saveFavoriteCallback: (City) -> Unit) : Recycle
     class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         fun bind(city: City, callback: (City) -> Unit) {
-            itemView.tvCityCountry.text = "${city.name}, ${city.id}"
+            itemView.tvCityCountry.text = "${city.name} - ${city.sys.country}"
             itemView.tvTemp.text = city.main.temp.roundToInt().toString()
             val weather = city.weathers[0]
             itemView.tvDescription.text = weather.description

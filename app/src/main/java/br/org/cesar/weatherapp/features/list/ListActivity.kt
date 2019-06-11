@@ -11,6 +11,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import br.org.cesar.weatherapp.Constants
 import br.org.cesar.weatherapp.R
 import br.org.cesar.weatherapp.api.RetrofitManager
 import br.org.cesar.weatherapp.database.RoomManager
@@ -86,13 +87,30 @@ class ListActivity : AppCompatActivity() {
         val lang = Util.getLang(this)
 
         val rm = RetrofitManager()
-        val call = rm.weatherService().find(
-            edtSearch.text.toString(),
-            "5fde54966e3e1c8a80e436245bdf9672",
-            units,
-            lang)
 
-        call.enqueue(object : Callback<FindResult> {
+        var call : Call<FindResult>? = null
+
+        if (edtSearch.text.isNotBlank()) {
+            call = rm.weatherService().find(
+                edtSearch.text.toString(),
+                Constants.API_KEY,
+                units,
+                lang
+            )
+        }else{
+            favoriteCities?.let {
+                val group = it.joinToString(",") { "${it.id}" }
+                call = rm.weatherService().group(
+                    group,
+                    Constants.API_KEY,
+                    units,
+                    lang
+                )
+            }
+
+        }
+
+        call?.enqueue(object : Callback<FindResult> {
 
             override fun onFailure(call: Call<FindResult>, t: Throwable) {
                 progressBar.visibility = View.GONE
@@ -131,7 +149,9 @@ class ListActivity : AppCompatActivity() {
         // RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
-    }
+
+        refreshList(null)
+     }
 
     private fun isDeviceConnected(): Boolean {
         val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager

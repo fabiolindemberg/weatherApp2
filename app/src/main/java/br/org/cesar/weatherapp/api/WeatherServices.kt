@@ -7,6 +7,21 @@ import retrofit2.http.Query
 
 interface WeatherServices {
 
+    @GET("group")
+    fun group (
+
+        @Query("id")
+        id: String,
+
+        @Query("appid")
+        appKey: String,
+
+        @Query("units")
+        units: String,
+
+        @Query("lang")
+        lang: String): Call<FindResult>
+
     @GET("find")
     fun find(
         @Query("q")
